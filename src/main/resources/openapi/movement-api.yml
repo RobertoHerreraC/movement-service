@@ -1,0 +1,300 @@
+openapi: 3.0.3
+info:
+  title: Movement Service API
+  version: 1.0.0
+  description: API para la gestión y consulta de movimientos bancarios.
+
+servers:
+  - url: http://localhost:8085
+    description: Local movement-service
+
+tags:
+  - name: Movements
+    description: Operaciones de movimientos bancarios
+
+paths:
+  /api/v1/movements:
+    post:
+      tags:
+        - Movements
+      summary: Create movement
+      operationId: createMovement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovementRequest'
+      responses:
+        '201':
+          description: Movement created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovementResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - Movements
+      summary: Find all movements
+      operationId: findAllMovements
+      responses:
+        '200':
+          description: Movements found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovementResponse'
+
+  /api/v1/movements/{id}:
+    get:
+      tags:
+        - Movements
+      summary: Find movement by id
+      operationId: findMovementById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Movement unique identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Movement found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovementResponse'
+        '404':
+          description: Movement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Movements
+      summary: Update movement
+      operationId: updateMovement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Movement unique identifier
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovementRequest'
+      responses:
+        '200':
+          description: Movement updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovementResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Movement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Movements
+      summary: Delete movement
+      operationId: deleteMovement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Movement unique identifier
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Movement deleted successfully
+        '404':
+          description: Movement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/movements/customer/{customerId}:
+    get:
+      tags:
+        - Movements
+      summary: Find movements by customer id
+      operationId: findMovementsByCustomerId
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: Customer unique identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Customer movements found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovementResponse'
+
+  /api/v1/movements/product/{productId}:
+    get:
+      tags:
+        - Movements
+      summary: Find movements by product id
+      operationId: findMovementsByProductId
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: Product unique identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product movements found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovementResponse'
+
+  /api/v1/movements/product/{productId}/customer/{customerId}:
+    get:
+      tags:
+        - Movements
+      summary: Find movements by product id and customer id
+      operationId: findMovementsByProductIdAndCustomerId
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: Product unique identifier
+          schema:
+            type: string
+        - name: customerId
+          in: path
+          required: true
+          description: Customer unique identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product customer movements found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovementResponse'
+
+components:
+  schemas:
+    MovementRequest:
+      type: object
+      required:
+        - customerId
+        - productId
+        - productType
+        - movementType
+        - amount
+      properties:
+        customerId:
+          type: string
+          example: "665f1a2b9c1d4e001234abcd"
+        productId:
+          type: string
+          example: "775f1a2b9c1d4e001234abcd"
+        productType:
+          type: string
+          example: "BANK_ACCOUNT"
+          description: "Allowed values: BANK_ACCOUNT, CREDIT, CREDIT_CARD"
+        movementType:
+          type: string
+          example: "DEPOSIT"
+          description: "Allowed values: DEPOSIT, WITHDRAWAL, CREDIT_PAYMENT, CREDIT_CARD_CHARGE, CREDIT_CARD_PAYMENT"
+        amount:
+          type: number
+          format: double
+          example: 200.00
+        description:
+          type: string
+          example: "Savings account deposit"
+
+    MovementResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "885f1a2b9c1d4e001234abcd"
+        customerId:
+          type: string
+          example: "665f1a2b9c1d4e001234abcd"
+        productId:
+          type: string
+          example: "775f1a2b9c1d4e001234abcd"
+        productType:
+          type: string
+          example: "BANK_ACCOUNT"
+        movementType:
+          type: string
+          example: "DEPOSIT"
+        amount:
+          type: number
+          format: double
+          example: 200.00
+        description:
+          type: string
+          example: "Savings account deposit"
+        active:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-05-29T12:30:00"
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "MOVEMENT_NOT_FOUND"
+        message:
+          type: string
+          example: "Movement not found"
+        path:
+          type: string
+          example: "/api/v1/movements/885f1a2b9c1d4e001234abcd"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-05-29T12:30:00"
